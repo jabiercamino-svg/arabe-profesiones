@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="es" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Flashcards Árabe – Profesiones</title>
+  
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: #1a1a2e;
+      color: #e8e0d0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 36px 20px 48px;
+    }
+
+    h1 {
+      font-family: Arial, sans-serif;
+      font-size: 42px;
+      font-weight: 700;
+      color: #f0c070;
+      letter-spacing: 1px;
+      text-align: center;
+      margin-bottom: 4px;
+    }
+
+    .subtitle {
+      font-size: 13px;
+      font-weight: 300;
+      color: #8a8090;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .search-wrap {
+      width: 100%;
+      max-width: 480px;
+      margin-bottom: 24px;
+    }
+
+    .search-wrap input {
+      width: 100%;
+      padding: 12px 18px;
+      border-radius: 30px;
+      border: 1px solid #3a3050;
+      background: #12122a;
+      color: #e8e0d0;
+      font-size: 15px;
+      font-family: Arial, sans-serif;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .search-wrap input::placeholder { color: #4a4060; }
+    .search-wrap input:focus { border-color: #f0c070; }
+
+    .controls {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      margin-bottom: 32px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      font-family: Arial, sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      padding: 10px 28px;
+      border-radius: 30px;
+      border: 1px solid #3a3050;
+      background: transparent;
+      color: #e8e0d0;
+      cursor: pointer;
+      transition: background 0.2s, border-color 0.2s, color 0.2s, transform 0.1s;
+    }
+
+    .btn:hover {
+      background: #2a2045;
+      border-color: #f0c070;
+      color: #f0c070;
+    }
+
+    .btn:active { transform: scale(0.97); }
+
+    .btn.active {
+      background: #f0c070;
+      color: #1a1a2e;
+      border-color: #f0c070;
+    }
+
+    .card-wrap {
+      width: 100%;
+      max-width: 580px;
+      height: 300px;
+      perspective: 1200px;
+      cursor: pointer;
+    }
+
+    .card-inner {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 0.6s cubic-bezier(.4,0,.2,1);
+    }
+
+    .card-inner.flipped { transform: rotateY(180deg); }
+
+    .face {
+      position: absolute;
+      inset: 0;
+      border-radius: 20px;
+      backface-visibility: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      padding: 36px;
+    }
+
+    .face.front {
+      background: #12122a;
+      border: 1px solid #2e2850;
+      box-shadow: 0 0 40px rgba(240,192,112,0.06);
+    }
+
+    .face.back {
+      background: #1e1840;
+      border: 1px solid #f0c070;
+      transform: rotateY(180deg);
+      box-shadow: 0 0 40px rgba(240,192,112,0.12);
+    }
+
+    .arabic-text {
+      font-family: Arial, sans-serif;
+      font-size: 64px;
+      direction: rtl;
+      color: #f0c070;
+      line-height: 1.1;
+      text-align: center;
+    }
+
+    .hint {
+      font-size: 12px;
+      color: #4a4060;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    .pron {
+      font-size: 20px;
+      font-style: italic;
+      color: #a090c0;
+      font-weight: 300;
+    }
+
+    .spanish {
+      font-size: 30px;
+      font-weight: 700;
+      color: #e8e0d0;
+    }
+
+    .no-results { font-size: 16px; color: #4a4060; }
+
+    .help {
+      margin-top: 28px;
+      font-size: 11px;
+      color: #3a3050;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      text-align: center;
+    }
+
+    @media (max-width: 500px) {
+      .arabic-text { font-size: 48px; }
+      .spanish { font-size: 24px; }
+      .card-wrap { height: 260px; }
+      h1 { font-size: 32px; }
+    }
+  </style>
+</head>
+<body>
+
+  <h1>بطاقات المهن</h1>
+  <div class="subtitle">Flashcards · Profesiones en árabe</div>
+
+  <div class="search-wrap">
+    <input type="text" id="search" placeholder="Buscar profesión en español o árabe..." oninput="filterCards()">
+  </div>
+
+  <div class="controls">
+    <button class="btn" onclick="prev()">⬅ Anterior</button>
+    <button class="btn" onclick="flip()">🔄 Girar</button>
+    <button class="btn" onclick="next()">Siguiente ➡</button>
+    <button class="btn" id="randomBtn" onclick="toggleRandom()">🔀 Aleatorio: NO</button>
+    <button class="btn" onclick="shuffle()">⇄ Mezclar</button>
+  </div>
+
+  <div class="card-wrap" onclick="flip()">
+    <div class="card-inner" id="card-inner">
+      <div class="face front" id="face-front"></div>
+      <div class="face back" id="face-back"></div>
+    </div>
+  </div>
+
+  <div class="help">espacio = girar · ← → = navegar</div>
+
+  <script>
+    const ALL_CARDS = [
+      { arabic: 'رجل أعمال',      pron: 'rajul aʿmāl',          spanish: 'empresario' },
+      { arabic: 'سيدة أعمال',     pron: 'sayyidat aʿmāl',       spanish: 'empresaria' },
+      { arabic: 'موظف',           pron: 'muwaẓẓaf',              spanish: 'empleado' },
+      { arabic: 'موظفة',          pron: 'muwaẓẓafa',             spanish: 'empleada' },
+      { arabic: 'مضيف',           pron: 'muḍīf',                 spanish: 'azafato' },
+      { arabic: 'مضيفة',          pron: 'muḍīfa',                spanish: 'azafata' },
+      { arabic: 'بواب',           pron: 'bawwāb',                spanish: 'portero' },
+      { arabic: 'بوابة',          pron: 'bawwāba',               spanish: 'portera' },
+      { arabic: 'طالب',           pron: 'ṭālib',                 spanish: 'estudiante (masc.)' },
+      { arabic: 'طالبة',          pron: 'ṭāliba',                spanish: 'estudiante (fem.)' },
+      { arabic: 'ربّ بيت',        pron: 'rabb bayt',             spanish: 'amo de casa' },
+      { arabic: 'ربة بيت',        pron: 'rabbat bayt',           spanish: 'ama de casa' },
+      { arabic: 'شرطي',           pron: 'shurṭī',                spanish: 'policía (masc.)' },
+      { arabic: 'شرطية',          pron: 'shurṭiyya',             spanish: 'policía (fem.)' },
+      { arabic: 'ممرض',           pron: 'mumarriḍ',              spanish: 'enfermero' },
+      { arabic: 'ممرضة',          pron: 'mumarriḍa',             spanish: 'enfermera' },
+      { arabic: 'طبيب',           pron: 'ṭabīb',                 spanish: 'médico' },
+      { arabic: 'طبيبة',          pron: 'ṭabība',                spanish: 'médica' },
+      { arabic: 'مهندس',          pron: 'muhandis',              spanish: 'ingeniero' },
+      { arabic: 'مهندسة',         pron: 'muhandisa',             spanish: 'ingeniera' },
+      { arabic: 'سكرتير',         pron: 'sikritīr',              spanish: 'secretario' },
+      { arabic: 'سكرتيرة',        pron: 'sikritīra',             spanish: 'secretaria' },
+      { arabic: 'مدير',           pron: 'mudīr',                 spanish: 'director' },
+      { arabic: 'مديرة',          pron: 'mudīra',                spanish: 'directora' },
+      { arabic: 'طباخ',           pron: 'ṭabbākh',               spanish: 'cocinero' },
+      { arabic: 'طباخة',          pron: 'ṭabbākha',              spanish: 'cocinera' },
+      { arabic: 'نادل',           pron: 'nādil',                 spanish: 'camarero' },
+      { arabic: 'نادلة',          pron: 'nādila',                spanish: 'camarera' },
+      { arabic: 'كهربائي',        pron: 'kahrabāʾī',             spanish: 'electricista (masc.)' },
+      { arabic: 'كهربائية',       pron: 'kahrabāʾiyya',          spanish: 'electricista (fem.)' },
+      { arabic: 'جزار',           pron: 'jazzār',                spanish: 'carnicero' },
+      { arabic: 'جزارة',          pron: 'jazzāra',               spanish: 'carnicera' },
+      { arabic: 'طيار',           pron: 'ṭayyār',                spanish: 'piloto (masc.)' },
+      { arabic: 'طيارة',          pron: 'ṭayyāra',               spanish: 'piloto (fem.)' },
+      { arabic: 'مترجم',          pron: 'mutarjim',              spanish: 'traductor' },
+      { arabic: 'مترجمة',         pron: 'mutarjima',             spanish: 'traductora' },
+      { arabic: 'محامٍ',          pron: 'muḥāmī',                spanish: 'abogado' },
+      { arabic: 'محامية',         pron: 'muḥāmiya',              spanish: 'abogada' },
+      { arabic: 'مدرس',           pron: 'mudarris',              spanish: 'profesor' },
+      { arabic: 'مدرسة',          pron: 'mudarrisa',             spanish: 'profesora' },
+      { arabic: 'معلم',           pron: 'muʿallim',              spanish: 'maestro' },
+      { arabic: 'معلمة',          pron: 'muʿallima',             spanish: 'maestra' },
+      { arabic: 'أستاذ',          pron: 'ustādh',                spanish: 'profesor / señor' },
+      { arabic: 'أستاذة',         pron: 'ustādha',               spanish: 'profesora' },
+      { arabic: 'أستاذ جامعي',    pron: 'ustādh jāmiʿī',         spanish: 'profesor universitario' },
+      { arabic: 'أستاذة جامعية',  pron: 'ustādha jāmiʿiyya',     spanish: 'profesora universitaria' },
+      { arabic: 'محاضر',          pron: 'muḥāḍir',               spanish: 'conferenciante' },
+      { arabic: 'محاضرة',         pron: 'muḥāḍira',              spanish: 'conferenciante (fem.)' },
+      { arabic: 'مدرب',           pron: 'mudarrib',              spanish: 'instructor / entrenador' },
+      { arabic: 'مدربة',          pron: 'mudarriba',             spanish: 'instructora' },
+      { arabic: 'كاتب',           pron: 'kātib',                 spanish: 'escritor' },
+      { arabic: 'رسّام',          pron: 'rassām',                spanish: 'pintor' },
+      { arabic: 'صحفي',           pron: 'ṣaḥafī',                spanish: 'periodista' },
+      { arabic: 'سائق',           pron: 'sāʾiq',                 spanish: 'conductor' },
+    ];
+
+    let filtered = [...ALL_CARDS];
+    let idx = 0;
+    let randomMode = false;
+
+    function render() {
+      const front = document.getElementById('face-front');
+      const back  = document.getElementById('face-back');
+      document.getElementById('card-inner').classList.remove('flipped');
+
+      if (!filtered.length) {
+        front.innerHTML = '<div class="no-results">Sin resultados</div>';
+        back.innerHTML = '';
+        return;
+      }
+
+      const c = filtered[idx];
+      front.innerHTML = `<div class="arabic-text">${c.arabic}</div><div class="hint">toca para ver la traducción</div>`;
+      back.innerHTML  = `<div class="pron">${c.pron}</div><div class="spanish">${c.spanish}</div>`;
+    }
+
+    function flip() {
+      document.getElementById('card-inner').classList.toggle('flipped');
+    }
+
+    function next() {
+      if (!filtered.length) return;
+      idx = randomMode
+        ? Math.floor(Math.random() * filtered.length)
+        : (idx + 1) % filtered.length;
+      render();
+    }
+
+    function prev() {
+      if (!filtered.length) return;
+      idx = randomMode
+        ? Math.floor(Math.random() * filtered.length)
+        : (idx - 1 + filtered.length) % filtered.length;
+      render();
+    }
+
+    function shuffle() {
+      for (let i = filtered.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [filtered[i], filtered[j]] = [filtered[j], filtered[i]];
+      }
+      idx = 0;
+      render();
+    }
+
+    function toggleRandom() {
+      randomMode = !randomMode;
+      const btn = document.getElementById('randomBtn');
+      btn.textContent = `🔀 Aleatorio: ${randomMode ? 'SÍ' : 'NO'}`;
+      btn.classList.toggle('active', randomMode);
+    }
+
+    function filterCards() {
+      const q = document.getElementById('search').value.toLowerCase();
+      filtered = ALL_CARDS.filter(c =>
+        c.spanish.toLowerCase().includes(q) ||
+        c.pron.toLowerCase().includes(q) ||
+        c.arabic.includes(q)
+      );
+      idx = 0;
+      render();
+    }
+
+    document.addEventListener('keydown', e => {
+      if (e.code === 'Space') { e.preventDefault(); flip(); }
+      if (e.key === 'ArrowRight') next();
+      if (e.key === 'ArrowLeft') prev();
+    });
+
+    render();
+  </script>
+
+</body>
+</html>
